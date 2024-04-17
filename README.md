@@ -1,10 +1,10 @@
-# Mon vieux Grimoire
+# My Old Grimoire
 
 
-## Comment lancer le projet ? 
+## How to Start the Project
 
-### Avec npm
+### With npm
 
-Faites la commande `npm install` pour installer les dépendances puis `npm start` pour lancer le projet. 
+Use the npm install command to install the dependencies, then npm start to launch the project.
 
-Le projet a été testé sur node 19. 
+The project was tested on node 19.
