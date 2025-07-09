@@ -3,7 +3,8 @@ const authRoutes = require('./routes/auth'); //wiring auth route
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-
+const testRoutes = require('./routes/test'); // testing token on Postman
+const path = require('path'); // so frontend can load uploaded images
 dotenv.config();
 
 const app = express();
@@ -14,6 +15,8 @@ app.use(express.json());
 // Test Route
 
 app.use('/api/auth', authRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/api/test', testRoutes);
 app.get('/', (req, res) => {
     res.send('Server is running!');
 });
