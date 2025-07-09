@@ -69,3 +69,35 @@ exports.deleteBook = (req, res) => {  // delete a book
         .catch(error => res.status(500).json({ error }));
 };
 
+exports.rateBook = (req, res) => {  // Rating a book 
+    const userId = req.auth.userId;
+    const bookId = req.params.id;
+    const { rating } = req.body;
+
+    if (rating < 0 || rating > 5) {
+        return res.status(400).json({ message: "Rating must be between 0 and 5." });
+    }
+
+    Book.findById(bookId)
+        .then(book => {
+            if (!book) return res.status(404).json({ message: "Book not found" });
+
+            // Check if user already rated
+            const alreadyRated = book.ratings.find(r => r.userId === userId);
+            if (alreadyRated) {
+                return res.status(400).json({ message: "User has already rated this book" });
+            }
+
+            // Add new rating
+            book.ratings.push({ userId, grade: rating });
+
+            // Calculate new average
+            const total = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+            book.averageRating = (total / book.ratings.length).toFixed(1);
+
+            book.save()
+                .then(updatedBook => res.status(200).json(updatedBook))
+                .catch(error => res.status(400).json({ error }));
+        })
+        .catch(error => res.status(500).json({ error }));
+};
