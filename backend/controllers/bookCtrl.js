@@ -101,3 +101,12 @@ exports.rateBook = (req, res) => {  // Rating a book
         })
         .catch(error => res.status(500).json({ error }));
 };
+
+// Get books sorted by average rating
+exports.getBestRatedBooks = (req, res) => {
+    Book.find()
+        .sort({ averageRating: -1 }) // Sort descending by averageRating
+        .limit(3) // Get top 3 rated books
+        .then(books => res.status(200).json(books))
+        .catch(error => res.status(400).json({ error }));
+};
