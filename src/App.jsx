@@ -28,15 +28,22 @@ function LayoutWrapper() {
   return (
     <>
       <ScrollToTop />
-      {!hideLayout && <Header user={user} setUser={setUser} />}
-      <Routes>
-        <Route index element={<Home />} />
-        <Route path={APP_ROUTES.SIGN_IN} element={<SignIn setUser={setUser} />} />
-        <Route path={APP_ROUTES.BOOK} element={<Book />} />
-        <Route path={APP_ROUTES.UPDATE_BOOK} element={<UpdateBook />} />
-        <Route path={APP_ROUTES.ADD_BOOK} element={<AddBook />} />
-      </Routes>
-      {!hideLayout && <Footer />}
+      {hideLayout ? (
+        <Routes>
+          <Route path={APP_ROUTES.SIGN_IN} element={<SignIn setUser={setUser} />} />
+        </Routes>
+      ) : (
+        <div className="layout-wrapper">
+          <Header user={user} setUser={setUser} />
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path={APP_ROUTES.BOOK} element={<Book />} />
+            <Route path={APP_ROUTES.UPDATE_BOOK} element={<UpdateBook />} />
+            <Route path={APP_ROUTES.ADD_BOOK} element={<AddBook />} />
+          </Routes>
+          <Footer />
+        </div>
+      )}
     </>
   );
 }
