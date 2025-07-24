@@ -34,18 +34,6 @@ exports.createBook = async (req, res) => {
         res.status(400).json({ error });
     }
 };
-// exports.createBook = (req, res) => {  //create book functionality 
-//     const bookObject = JSON.parse(req.body.book);
-//     bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-
-//     const book = new Book({
-//         ...bookObject,
-//     });
-
-//     book.save()
-//         .then(() => res.status(201).json({ message: 'Book created!' }))
-//         .catch(error => res.status(400).json({ error }));
-// };
 
 
 exports.updateBook = async (req, res) => {
@@ -74,11 +62,6 @@ exports.updateBook = async (req, res) => {
                 ...parsedBook,
                 imageUrl: `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`
             };
-            // bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`;
-            // updatedData = {
-            //     ...JSON.parse(req.body.book),
-            //     imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`
-            // };
 
             // No image uploaded
         } else {
@@ -99,59 +82,6 @@ exports.updateBook = async (req, res) => {
         res.status(400).json({ error: 'Update failed. Please check the data and try again.' });
     }
 };
-// exports.updateBook = (req, res) => {
-//     const bookId = req.params.id;
-//     let updatedData;
-
-//     try {
-//         if (req.file) {
-//             // Image uploaded, parse JSON string
-//             updatedData = {
-//                 ...JSON.parse(req.body.book),
-//                 imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-//             };
-//         } else {
-//             // No image uploaded
-//             if (typeof req.body.book === 'string') {
-//                 updatedData = JSON.parse(req.body.book);
-//             } else {
-//                 updatedData = { ...req.body };
-//             }
-//         }
-//     } catch (error) {
-//         return res.status(400).json({ message: 'Invalid book data format', error });
-//     }
-
-//     Book.findByIdAndUpdate(bookId, updatedData, { new: true })
-//         .then((updatedBook) => {
-//             if (!updatedBook) {
-//                 return res.status(404).json({ error: 'Book not found.' });
-//             }
-//             res.status(200).json({ message: 'Book updated!', book: updatedBook });
-//         })
-//         .catch((error) => res.status(500).json({ error }));
-// };
-//new
-
-// exports.updateBook = (req, res) => { //update book functionality
-//     const bookId = req.params.id;
-
-//     const updatedData = req.file
-//         ? {
-//             ...JSON.parse(req.body.book),
-//             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-//         }
-//         : { ...JSON.parse(req.body.book) };
-
-//     Book.findByIdAndUpdate(bookId, updatedData, { new: true })
-//         .then((updatedBook) => {
-//             if (!updatedBook) {
-//                 return res.status(404).json({ error: 'Book not found.' });
-//             }
-//             res.status(200).json({ message: 'Book updated!', book: updatedBook });
-//         })
-//         .catch((error) => res.status(400).json({ error }));
-// };
 
 
 exports.getAllBooks = (req, res) => {  // All books functionality. req is not needed in this function. 
