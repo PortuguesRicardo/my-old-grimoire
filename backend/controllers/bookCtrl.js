@@ -17,6 +17,10 @@ exports.createBook = async (req, res) => {
             .jpeg({ quality: 80 })  // Compresses quality to reduce size
             .toFile(optimizedPath);
 
+        // Deletes the original image
+        const fs = require('fs');
+        fs.unlinkSync(req.file.path);
+
         const book = new Book({
             ...bookObject,
             userId: req.auth.userId,
@@ -50,22 +54,36 @@ exports.updateBook = async (req, res) => {
     try {
         let updatedData;
 
+        // Handles image compression if new file is uploaded
         if (req.file) {
             const imagePath = `images/${req.file.filename}`;
-            const optimizedPath = `images/optimized-${req.file.filename}`;
+            const optimizedFilename = `optimized-${req.file.originalname}`;
+            const optimizedPath = path.join(__dirname, '../images', optimizedFilename);
 
             // Optimizes the uploaded image
             await sharp(req.file.path)
                 .resize({ width: 600 })
                 .jpeg({ quality: 80 })  // compress quality
                 .toFile(optimizedPath);
+            // Deletes original uploaded file
+            fs.unlinkSync(req.file.path);
+
+            const parsedBook = typeof req.body.book === 'string' ? JSON.parse(req.body.book) : req.body.book;
 
             updatedData = {
-                ...JSON.parse(req.body.book),
-                imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`
+                ...parsedBook,
+                imageUrl: `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`
             };
+            // bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`;
+            // updatedData = {
+            //     ...JSON.parse(req.body.book),
+            //     imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`
+            // };
+
+            // No image uploaded
         } else {
-            updatedData = JSON.parse(req.body.book);
+            // updatedData = JSON.parse(req.body.book);
+            updatedData = req.body;
         }
 
         const updatedBook = await Book.findByIdAndUpdate(bookId, updatedData, { new: true });
@@ -77,7 +95,8 @@ exports.updateBook = async (req, res) => {
         res.status(200).json({ message: 'Book updated!', book: updatedBook });
 
     } catch (error) {
-        res.status(400).json({ error });
+        console.error('Error updating book:', error);
+        res.status(400).json({ error: 'Update failed. Please check the data and try again.' });
     }
 };
 // exports.updateBook = (req, res) => {
