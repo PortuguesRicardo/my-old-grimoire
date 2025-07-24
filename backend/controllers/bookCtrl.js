@@ -14,16 +14,28 @@ exports.createBook = (req, res) => {  //create book functionality
         .catch(error => res.status(400).json({ error }));
 };
 
-
-exports.updateBook = (req, res) => { //update book functionality
+exports.updateBook = (req, res) => {
     const bookId = req.params.id;
+    let updatedData;
 
-    const updatedData = req.file
-        ? {
-            ...JSON.parse(req.body.book),
-            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    try {
+        if (req.file) {
+            // Image uploaded, parse JSON string
+            updatedData = {
+                ...JSON.parse(req.body.book),
+                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+            };
+        } else {
+            // No image uploaded
+            if (typeof req.body.book === 'string') {
+                updatedData = JSON.parse(req.body.book);
+            } else {
+                updatedData = { ...req.body };
+            }
         }
-        : { ...JSON.parse(req.body.book) };
+    } catch (error) {
+        return res.status(400).json({ message: 'Invalid book data format', error });
+    }
 
     Book.findByIdAndUpdate(bookId, updatedData, { new: true })
         .then((updatedBook) => {
@@ -32,8 +44,27 @@ exports.updateBook = (req, res) => { //update book functionality
             }
             res.status(200).json({ message: 'Book updated!', book: updatedBook });
         })
-        .catch((error) => res.status(400).json({ error }));
+        .catch((error) => res.status(500).json({ error }));
 };
+// exports.updateBook = (req, res) => { //update book functionality
+//     const bookId = req.params.id;
+
+//     const updatedData = req.file
+//         ? {
+//             ...JSON.parse(req.body.book),
+//             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+//         }
+//         : { ...JSON.parse(req.body.book) };
+
+//     Book.findByIdAndUpdate(bookId, updatedData, { new: true })
+//         .then((updatedBook) => {
+//             if (!updatedBook) {
+//                 return res.status(404).json({ error: 'Book not found.' });
+//             }
+//             res.status(200).json({ message: 'Book updated!', book: updatedBook });
+//         })
+//         .catch((error) => res.status(400).json({ error }));
+// };
 
 
 exports.getAllBooks = (req, res) => {  // All books functionality. req is not needed in this function. 
