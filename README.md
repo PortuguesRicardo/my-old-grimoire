@@ -43,7 +43,7 @@ JWT_SECRET=your_jwt_secret_key
 
 to run the server:
 ```
-npm install
+npm start
 
 ```
 
