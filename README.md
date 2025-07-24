@@ -1,10 +1,103 @@
 # My Old Grimoire
 
+### This repository contains both the frontend (React) and backend (Node.js/Express) code for the project.
 
-## How to Start the Project
+This is the final project for the My Old Grimoire application — a full-stack web app that allows users to sign up, log in, add/edit/delete books, and rate others' books. 
 
-### With npm
+The project follows Green Code best practices by compressing uploaded images in the backend.
 
-Use the npm install command to install the dependencies, then npm start to launch the project.
+## Tech Stack
 
-The project was tested on node 19.
+- **Frontend:** React
+- **Backend:** Node.js + Express
+- **Database:** MongoDB
+- **Image Processing:** Sharp
+  
+
+## Installation Instructions
+
+### Clone the repository
+```bash
+git clone https://github.com/PortuguesRicardo/my-old-grimoire.git
+
+cd my-old-grimoire
+```
+
+### Backend setup
+```
+cd backend
+
+npm install
+```
+
+MongoDB URI and JWT secret should be set up in /backend/.env
+
+## Create a .env file in /backend/ with the following:
+```
+ini
+
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_jwt_secret_key
+```
+
+to run the server:
+```
+npm start
+
+```
+
+### Frontend setup (in a separate terminal)
+```
+cd my-old-grimoire
+
+npm install
+
+npm start
+```
+
+This will launch the frontend at http://localhost:3000.
+
+ 
+## Features
+
+- User Sign Up & Login
+
+- Add / Edit / Delete books
+
+- Rate a book (0-5 scale)
+
+- Prevent multiple ratings by same user
+
+- Display average ratings
+
+- Image upload with automatic compression (via Sharp)
+
+- Responsive UI
+
+- Accessibility improvements
+
+## Green Code Practices
+
+- Uploaded book images are automatically compressed and resized (600px width, 80% quality) using sharp.
+
+- The original uncompressed images are deleted after processing to reduce storage usage.
+
+##  Notes
+- You must be authenticated to create, update, or delete books.
+
+- Any user can rate other users' books but cannot rate the same book more than once.
+
+- Deleting a book also removes the associated image from the backend folder.
+
+## MongoDB
+
+Data is stored in MongoDB. Use MongoDB Compass to view:
+
+   - users collection
+
+   - books collection
+
+Book documents include an averageRating and a ratings array of user ratings.
+
+
