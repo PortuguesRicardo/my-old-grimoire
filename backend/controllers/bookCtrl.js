@@ -1,51 +1,119 @@
 
 const Book = require('../models/Book');
+const sharp = require('sharp');  // importing sharp
+const path = require('path');
 
-exports.createBook = (req, res) => {  //create book functionality 
-    const bookObject = JSON.parse(req.body.book);
-    bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+exports.createBook = async (req, res) => {
+    try {
+        const bookObject = JSON.parse(req.body.book);
 
-    const book = new Book({
-        ...bookObject,
-    });
+        // Creates optimized image path
+        const imagePath = `images/${req.file.filename}`;
+        const optimizedPath = `images/optimized-${req.file.filename}`;
 
-    book.save()
-        .then(() => res.status(201).json({ message: 'Book created!' }))
-        .catch(error => res.status(400).json({ error }));
+        // Optimizes the image using sharp
+        await sharp(req.file.path)
+            .resize({ width: 600 })
+            .jpeg({ quality: 80 })  // Compresses quality to reduce size
+            .toFile(optimizedPath);
+
+        const book = new Book({
+            ...bookObject,
+            userId: req.auth.userId,
+            imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`,
+            averageRating: bookObject.ratings?.[0]?.grade || 0,
+        });
+
+        await book.save();
+        res.status(201).json({ message: 'Book saved successfully!' });
+    } catch (error) {
+        res.status(400).json({ error });
+    }
 };
+// exports.createBook = (req, res) => {  //create book functionality 
+//     const bookObject = JSON.parse(req.body.book);
+//     bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
-exports.updateBook = (req, res) => {
+//     const book = new Book({
+//         ...bookObject,
+//     });
+
+//     book.save()
+//         .then(() => res.status(201).json({ message: 'Book created!' }))
+//         .catch(error => res.status(400).json({ error }));
+// };
+
+
+exports.updateBook = async (req, res) => {
     const bookId = req.params.id;
-    let updatedData;
 
     try {
+        let updatedData;
+
         if (req.file) {
-            // Image uploaded, parse JSON string
+            const imagePath = `images/${req.file.filename}`;
+            const optimizedPath = `images/optimized-${req.file.filename}`;
+
+            // Optimizes the uploaded image
+            await sharp(req.file.path)
+                .resize({ width: 600 })
+                .jpeg({ quality: 80 })  // compress quality
+                .toFile(optimizedPath);
+
             updatedData = {
                 ...JSON.parse(req.body.book),
-                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`
             };
         } else {
-            // No image uploaded
-            if (typeof req.body.book === 'string') {
-                updatedData = JSON.parse(req.body.book);
-            } else {
-                updatedData = { ...req.body };
-            }
+            updatedData = JSON.parse(req.body.book);
         }
-    } catch (error) {
-        return res.status(400).json({ message: 'Invalid book data format', error });
-    }
 
-    Book.findByIdAndUpdate(bookId, updatedData, { new: true })
-        .then((updatedBook) => {
-            if (!updatedBook) {
-                return res.status(404).json({ error: 'Book not found.' });
-            }
-            res.status(200).json({ message: 'Book updated!', book: updatedBook });
-        })
-        .catch((error) => res.status(500).json({ error }));
+        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedData, { new: true });
+
+        if (!updatedBook) {
+            return res.status(404).json({ error: 'Book not found.' });
+        }
+
+        res.status(200).json({ message: 'Book updated!', book: updatedBook });
+
+    } catch (error) {
+        res.status(400).json({ error });
+    }
 };
+// exports.updateBook = (req, res) => {
+//     const bookId = req.params.id;
+//     let updatedData;
+
+//     try {
+//         if (req.file) {
+//             // Image uploaded, parse JSON string
+//             updatedData = {
+//                 ...JSON.parse(req.body.book),
+//                 imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+//             };
+//         } else {
+//             // No image uploaded
+//             if (typeof req.body.book === 'string') {
+//                 updatedData = JSON.parse(req.body.book);
+//             } else {
+//                 updatedData = { ...req.body };
+//             }
+//         }
+//     } catch (error) {
+//         return res.status(400).json({ message: 'Invalid book data format', error });
+//     }
+
+//     Book.findByIdAndUpdate(bookId, updatedData, { new: true })
+//         .then((updatedBook) => {
+//             if (!updatedBook) {
+//                 return res.status(404).json({ error: 'Book not found.' });
+//             }
+//             res.status(200).json({ message: 'Book updated!', book: updatedBook });
+//         })
+//         .catch((error) => res.status(500).json({ error }));
+// };
+//new
+
 // exports.updateBook = (req, res) => { //update book functionality
 //     const bookId = req.params.id;
 
