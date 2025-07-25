@@ -32,6 +32,10 @@ npm install
 
 MongoDB URI and JWT secret should be set up in /backend/.env
 
+The project uses common Node.js packages such as express, mongoose, cors, multer, and jsonwebtoken. 
+All required dependencies will be installed automatically when you run npm install.
+
+
 ## Create a .env file in /backend/ with the following:
 ```
 ini
