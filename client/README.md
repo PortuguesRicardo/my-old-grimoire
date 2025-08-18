@@ -27,10 +27,55 @@ cd my-old-grimoire
 ```
 cd backend
 
+```
+### Project tested on Node v22.14.0
+Use:
+```
 npm install
 ```
 
+- If using another Node version, use:
+
+```
+npm install --legacy-peer-deps
+```
+
+to avoid peer dependency errors.
+
+### Optional: Switching Node versions:
+```
+nvm use 22
+```
+
+### Environment variables
+
+Create a .env file in the backend folder:
+
+```
+
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+
+```
+### Run backend server
+
+```
+npm start
+```
+
+
+or for development with auto-reload:
+
+```
+npm run dev
+```
+
+
 MongoDB URI and JWT secret should be set up in /backend/.env
+
+The project uses common Node.js packages such as express, mongoose, cors, multer, and jsonwebtoken. 
+All required dependencies will be installed automatically when you run npm install.
+
 
 ## Create a .env file in /backend/ with the following:
 ```
