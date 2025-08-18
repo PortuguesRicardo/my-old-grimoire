@@ -12,4 +12,4 @@ const storage = multer.diskStorage({
   },
 });
 
-module.exports = multer({ storage }).single('image');
+module.exports = multer({ storage }).single('image');  // allows for users to upload book cover images.
