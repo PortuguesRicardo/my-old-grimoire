@@ -1,85 +1,57 @@
 
 const Book = require('../models/Book');
-const sharp = require('sharp');  // importing sharp
-const path = require('path');
+// const sharp = require('sharp');  
+// const path = require('path');
 
+// CREATE
 exports.createBook = async (req, res) => {
     try {
-        const bookObject = JSON.parse(req.body.book);
+        // If multipart sends JSON in "book", parse it; otherwise use body directly
+        const payload = req.body.book ? JSON.parse(req.body.book) : req.body;
 
-        // Creates optimized image path
-        const imagePath = `images/${req.file.filename}`;
-        const optimizedPath = `images/optimized-${req.file.filename}`;
+        const doc = {
+            ...payload,
+            // keep  auth assignment if  used
+            userId: req.auth?.userId ?? payload.userId,
+            // Cloudinary public URL from multer-storage-cloudinary
+            imageUrl: req.file ? req.file.path : payload.imageUrl,
+            // keep initial average rating logic
+            averageRating: Array.isArray(payload.ratings) && payload.ratings.length
+                ? payload.ratings[0].grade
+                : (payload.averageRating ?? 0),
+            // If you later want to delete from Cloudinary, also save:
+            // imageId: req.file?.filename,
+        };
 
-        // Optimizes the image using sharp
-        await sharp(req.file.path)
-            .resize({ width: 600 })
-            .jpeg({ quality: 80 })  // Compresses quality to reduce size
-            .toFile(optimizedPath);
-
-        // Deletes the original image
-        const fs = require('fs');
-        fs.unlinkSync(req.file.path);
-
-        const book = new Book({
-            ...bookObject,
-            userId: req.auth.userId,
-            imageUrl: `${req.protocol}://${req.get('host')}/${optimizedPath}`,
-            averageRating: bookObject.ratings?.[0]?.grade || 0,
-        });
-
-        await book.save();
-        res.status(201).json({ message: 'Book saved successfully!' });
-    } catch (error) {
-        res.status(400).json({ error });
+        const created = await Book.create(doc);
+        return res.status(201).json(created);
+    } catch (err) {
+        console.error('createBook error:', err);
+        return res.status(400).json({ message: err.message });
     }
 };
 
-
+// UPDATE
 exports.updateBook = async (req, res) => {
-    const bookId = req.params.id;
-
     try {
-        let updatedData;
+        const bookId = req.params.id;
+        const payload = req.body.book ? JSON.parse(req.body.book) : req.body;
 
-        // Handles image compression if new file is uploaded
+        const updates = {
+            ...payload,
+        };
+
+        // If a new image was uploaded, use the Cloudinary URL
         if (req.file) {
-            const imagePath = `images/${req.file.filename}`;
-            const optimizedFilename = `optimized-${req.file.originalname}`;
-            const optimizedPath = path.join(__dirname, '../images', optimizedFilename);
-
-            // Optimizes the uploaded image
-            await sharp(req.file.path)
-                .resize({ width: 600 })
-                .jpeg({ quality: 80 })  // compress quality
-                .toFile(optimizedPath);
-            // Deletes original uploaded file
-            fs.unlinkSync(req.file.path);
-
-            const parsedBook = typeof req.body.book === 'string' ? JSON.parse(req.body.book) : req.body.book;
-
-            updatedData = {
-                ...parsedBook,
-                imageUrl: `${req.protocol}://${req.get('host')}/images/${optimizedFilename}`
-            };
-
-            // No image uploaded
-        } else {
-            // updatedData = JSON.parse(req.body.book);
-            updatedData = req.body;
+            updates.imageUrl = req.file.path;      // Cloudinary public URL
+            // updates.imageId = req.file.filename; // optional for later delete
         }
 
-        const updatedBook = await Book.findByIdAndUpdate(bookId, updatedData, { new: true });
-
-        if (!updatedBook) {
-            return res.status(404).json({ error: 'Book not found.' });
-        }
-
-        res.status(200).json({ message: 'Book updated!', book: updatedBook });
-
-    } catch (error) {
-        console.error('Error updating book:', error);
-        res.status(400).json({ error: 'Update failed. Please check the data and try again.' });
+        const updated = await Book.findByIdAndUpdate(bookId, updates, { new: true });
+        return res.status(200).json(updated);
+    } catch (err) {
+        console.error('updateBook error:', err);
+        return res.status(400).json({ message: err.message });
     }
 };
 

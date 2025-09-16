@@ -1,15 +1,28 @@
 const multer = require('multer');
-const path = require('path');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, 'images'); // files go to /backend/images
-  },
-  filename: (req, file, callback) => {
-    const name = file.originalname.split(' ').join('_');
-    const extension = path.extname(file.originalname);
-    callback(null, name + Date.now() + extension);
-  },
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-module.exports = multer({ storage }).single('image');  // allows for users to upload book cover images.
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async () => ({
+    folder: 'grimoire',
+    resource_type: 'image',
+  }),
+});
+
+const fileFilter = (req, file, cb) => {
+  if (/image\/(png|jpe?g|webp)/.test(file.mimetype)) cb(null, true);
+  else cb(new Error('Only image files are allowed'), false);
+};
+
+module.exports = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single('image'); // field name must be "image"
