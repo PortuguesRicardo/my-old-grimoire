@@ -1,3 +1,5 @@
+
+
 # My Old Grimoire
 
 ### This repository contains both the frontend (React) and backend (Node.js/Express) code for the project.
@@ -5,6 +7,15 @@
 This is the final project for the My Old Grimoire application — a full-stack web app that allows users to sign up, log in, add/edit/delete books, and rate others' books. 
 
 The project follows Green Code best practices by compressing uploaded images in the backend.
+
+[View the live app here] https://grimoire-rate.vercel.app
+
+### Demo Login
+You can explore the app using the following test account:
+
+**Email:** testassessment2@example.com  
+**Password:** 123456!
+
 
 ## Tech Stack
 
