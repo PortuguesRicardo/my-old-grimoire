@@ -10,6 +10,12 @@ The project follows Green Code best practices by compressing uploaded images in 
 
 [View the live app here] https://grimoire-rate.vercel.app
 
+### Demo Login
+You can explore the app using the following test account:
+
+**Email:** testassessment2@example.com  
+**Password:** 123456!
+
 
 ## Tech Stack
 
