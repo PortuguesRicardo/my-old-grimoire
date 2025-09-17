@@ -8,6 +8,7 @@ This is the final project for the My Old Grimoire application — a full-stack w
 
 The project follows Green Code best practices by compressing uploaded images in the backend.
 
+
 [View the live app here] https://grimoire-rate.vercel.app
 
 ### Demo Login
@@ -127,17 +128,17 @@ This will launch the frontend at http://localhost:3000.
 
 - Display average ratings
 
-- Image upload with automatic compression (via Sharp)
+- Responsive image transformation and global CDN using Cloudinary
 
 - Responsive UI
 
 - Accessibility improvements
 
-## Green Code Practices
+## Green Code Practices & Image Handling
+  
+-  **Development (local):** Initially implemented image upload and automatic compression using [Sharp](https://sharp.pixelplumbing.com/).
+- **Production (live):** Switched to [Cloudinary](https://cloudinary.com/) for image storage, optimization, and delivery due to hosting limitations (Render free tier does not support Sharp processing reliably).
 
-- Uploaded book images are automatically compressed and resized (600px width, 80% quality) using sharp.
-
-- The original uncompressed images are deleted after processing to reduce storage usage.
 
 ##  Notes
 - You must be authenticated to create, update, or delete books.
@@ -145,6 +146,16 @@ This will launch the frontend at http://localhost:3000.
 - Any user can rate other users' books but cannot rate the same book more than once.
 
 - Deleting a book also removes the associated image from the backend folder.
+
+  - **Initial load delay (free-tier cold start):**  
+  This app is hosted on Render’s free tier which puts the service to sleep after a period of inactivity.  
+  The **first request after idle can take ~15–60 seconds** while the server “wakes up.”  
+  Subsequent requests are fast.
+
+- **Images via Cloudinary:**  
+  Images are delivered from Cloudinary’s CDN. The **first transformation** of a new image may take a moment while Cloudinary generates the derived asset; after that it’s cached globally and loads quickly.
+
+If the page appears blank for a few seconds on first visit, it’s due to the free-tier cold start. Thanks for your patience!
 
 ## MongoDB
 
@@ -155,5 +166,7 @@ Data is stored in MongoDB. Use MongoDB Compass to view:
    - books collection
 
 Book documents include an averageRating and a ratings array of user ratings.
+
+
 
 
